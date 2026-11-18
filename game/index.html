@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VELVET CITY</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0d0f16; font-family: system-ui, -apple-system, sans-serif; }
+  #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+  /* Vignette: a soft dark falloff at the frame edges, like a camera lens at dusk.
+     Above the canvas, below the HUD, never intercepts input. */
+  #vignette { position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(5,4,12,0.42) 100%); }
+  #hud { z-index: 2; }
+  #status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+  /* HUD: top-left status, top-right money + stars, bottom-left objective, bottom-right speed. */
+  #hud { position: fixed; inset: 0; pointer-events: none; color: #f2f0e8; }
+  .hud-panel { background: rgba(12, 12, 22, 0.62); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 8px; padding: 8px 12px; }
+  #hud-top-left { position: absolute; top: 14px; left: 14px; min-width: 190px; }
+  #hud-health-label { font-size: 12px; letter-spacing: 2px; color: #c9c4b8; }
+  #hud-health-track { height: 10px; background: rgba(255,255,255,0.15); border-radius: 5px; margin-top: 4px; overflow: hidden; }
+  #hud-health-bar { height: 100%; width: 100%; background: linear-gradient(90deg, #ffcf3f, #3fd47e); border-radius: 5px; }
+  #hud-health { font-size: 13px; margin-top: 4px; color: #f2f0e8; }
+  #hud-top-right { position: absolute; top: 14px; right: 14px; text-align: right; }
+  #hud-money { font-size: 26px; font-weight: 800; color: #3fd47e; }
+  #hud-stars { font-size: 20px; letter-spacing: 3px; margin-top: 2px; }
+  #hud-radio { font-size: 12px; color: #b8b2a4; margin-top: 4px; letter-spacing: 1px; }
+  #hud-bottom-left { position: absolute; left: 14px; bottom: 14px; max-width: 420px; }
+  #hud-objective { font-size: 15px; font-weight: 700; }
+  #hud-distance { font-size: 13px; color: #ffcf3f; margin-top: 2px; }
+  #hud-timer { font-size: 18px; font-weight: 800; margin-top: 2px; }
+  #hud-bottom-right { position: absolute; right: 14px; bottom: 14px; text-align: right; }
+  #hud-speed { font-size: 26px; font-weight: 800; }
+  #hud-ammo { font-size: 13px; color: #c9c4b8; margin-top: 2px; }
+  #minimap { position: absolute; right: 14px; top: 118px; border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; background: #171a24; }
+  #hud-banner { position: absolute; top: 22%; left: 50%; transform: translateX(-50%); font-size: 30px; font-weight: 800; color: #ffcf3f; text-shadow: 0 2px 12px rgba(0,0,0,0.8); opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
+
+  /* Full-screen overlays (title / pause / over / win). */
+  .screen { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; text-align: center; color: #f2f0e8; background: rgba(10, 8, 20, 0.55); pointer-events: auto; }
+  .screen h1 { font-size: 64px; margin: 0; letter-spacing: 6px; color: #ffcf3f; text-shadow: 0 0 28px rgba(255, 140, 66, 0.65), 0 4px 0 rgba(0,0,0,0.4); }
+  .screen h2 { font-size: 40px; margin: 0 0 12px; letter-spacing: 3px; }
+  .screen p { font-size: 16px; max-width: 560px; line-height: 1.6; color: #d8d2c4; margin: 10px 0; }
+  .screen .sub { font-size: 14px; letter-spacing: 4px; color: #ff8c42; margin-bottom: 8px; }
+  .screen button { pointer-events: auto; margin-top: 18px; font-size: 18px; font-weight: 700; padding: 12px 34px; border: 0; border-radius: 8px; background: #ffcf3f; color: #1a1408; cursor: pointer; }
+  .screen button:hover { background: #ffd95e; }
+  .screen .keys { font-size: 13px; color: #a8a294; margin-top: 22px; line-height: 1.9; }
+  #title-save { font-size: 13px; color: #8f8a7e; margin-top: 10px; }
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="VELVET CITY: an open-world crime game in Port Meridian. Steal cars, lose the cops, run the five missions."></canvas>
+<div id="vignette" aria-hidden="true"></div>
+<p id="status" role="status" aria-live="polite">VELVET CITY loaded.</p>
+
+<div id="hud">
+  <div id="hud-top-left" class="hud-panel">
+    <div id="hud-health-label">HEALTH</div>
+    <div id="hud-health-track"><div id="hud-health-bar"></div></div>
+    <div id="hud-health">100</div>
+  </div>
+  <div id="hud-top-right" class="hud-panel">
+    <div id="hud-money">$0</div>
+    <div id="hud-stars">☆☆☆☆☆</div>
+    <div id="hud-radio">♪ VELVET FM</div>
+  </div>
+  <div id="hud-bottom-left" class="hud-panel">
+    <div id="hud-objective">Steal a car and meet Vinny at the garage.</div>
+    <div id="hud-distance"></div>
+    <div id="hud-timer"></div>
+  </div>
+  <div id="hud-bottom-right" class="hud-panel">
+    <div id="hud-speed">0 km/h</div>
+    <div id="hud-ammo">Ammo 12</div>
+  </div>
+  <canvas id="minimap" width="228" height="172"></canvas>
+  <div id="hud-banner"></div>
+</div>
+
+<div id="screen-title" class="screen">
+  <div class="sub">PORT MERIDIAN · AFTER DARK</div>
+  <h1>VELVET CITY</h1>
+  <p>Steal cars. Lose the cops. Run five jobs for Vinny and take the Central Bank vault — or end up wasted or busted trying.</p>
+  <button id="title-start">START ENGINE</button>
+  <div id="title-save"></div>
+  <div class="keys">WASD move / drive &nbsp;·&nbsp; F enter or exit a car &nbsp;·&nbsp; Mouse aim, click to shoot<br>SPACE handbrake &nbsp;·&nbsp; SHIFT run &nbsp;·&nbsp; J punch &nbsp;·&nbsp; C radio &nbsp;·&nbsp; H headlights &nbsp;·&nbsp; P pause &nbsp;·&nbsp; M mute<br>ENTER continue save &nbsp;·&nbsp; N new game</div>
+</div>
+
+<div id="screen-paused" class="screen">
+  <h2>PAUSED</h2>
+  <p>Press P to keep driving.</p>
+</div>
+
+<div id="screen-over" class="screen">
+  <h2 id="over-title">BUSTED</h2>
+  <p id="over-text">Wasted. Haul $0.</p>
+  <button id="over-restart">TRY AGAIN (R)</button>
+</div>
+
+<div id="screen-win" class="screen">
+  <h2>VELVET CITY IS YOURS</h2>
+  <p id="win-text">Story complete! Final haul $0.</p>
+  <button id="win-restart">PLAY AGAIN (R)</button>
+</div>
+
+<script src="vendor/three.min.js"></script>
+<script src="src/config.js"></script>
+<script src="src/random.js"></script>
+<script src="src/city.js"></script>
+<script src="src/world.js"></script>
+<script src="src/audio.js"></script>
+<script src="src/render3d.js"></script>
+<script src="src/shots.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>
