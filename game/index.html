@@ -2,35 +2,122 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>VELVET CITY</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VELVET CITY — Port Meridian</title>
 <style>
-html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#0a0e14;font-family:Arial,Helvetica,sans-serif}
-#game{display:block;width:100%;height:100%}
-#hud{position:absolute;left:12px;top:10px;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000;font-size:15px;line-height:1.55;pointer-events:none;z-index:5}
-#hud b{color:#ffd23f}
-#stars{color:#ffd23f;font-size:22px;letter-spacing:3px}
-#obj{position:absolute;left:12px;bottom:12px;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000;font-size:15px;pointer-events:none;z-index:5;max-width:60%}
-#minimap{position:absolute;right:12px;top:12px;border:2px solid rgba(255,255,255,.85);background:rgba(8,12,18,.75);z-index:5}
-#crosshair{position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;pointer-events:none;z-index:6;color:#fff;font-size:22px;text-align:center;line-height:22px;text-shadow:0 0 4px #000}
-#ov-title{position:absolute;left:0;right:0;top:30%;text-align:center;color:#fff;z-index:7;pointer-events:none;text-shadow:0 2px 10px #000,0 0 24px #000}
-#ov-title .t{font-size:56px;font-weight:bold;letter-spacing:10px;color:#ffd23f}
-#ov-title .s{font-size:17px;margin-top:10px;line-height:1.7}
-#ov-big{position:absolute;left:0;right:0;top:38%;text-align:center;color:#ff5252;font-size:54px;font-weight:bold;letter-spacing:8px;z-index:7;pointer-events:none;text-shadow:0 2px 10px #000;display:none}
-#ov-sub{position:absolute;left:0;right:0;top:52%;text-align:center;color:#fff;font-size:17px;z-index:7;pointer-events:none;text-shadow:0 1px 4px #000;display:none}
-#hud-state{display:none}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #101018;
+    font-family: 'Segoe UI', Arial, sans-serif; color: #f2f2f2; }
+  #game { position: fixed; inset: 0; }
+  #game canvas { display: block; }
+  .hidden { display: none !important; }
+  /* HUD */
+  #hud { display: none; position: fixed; inset: 0; pointer-events: none; z-index: 5; }
+  #topLeft { position: absolute; top: 14px; left: 16px; font-size: 20px;
+    text-shadow: 0 2px 4px rgba(0,0,0,.8); }
+  #cash { font-weight: bold; color: #7dff9a; }
+  #healthWrap { width: 190px; height: 12px; background: rgba(0,0,0,.55);
+    border: 1px solid rgba(255,255,255,.4); border-radius: 6px; margin-top: 6px; overflow: hidden; }
+  #healthBar { height: 100%; width: 100%; background: #2ecc71; }
+  #wanted { position: absolute; top: 12px; right: 210px; font-size: 30px; letter-spacing: 4px;
+    color: #ffd34d; text-shadow: 0 2px 6px rgba(0,0,0,.9); }
+  #wanted.warm { color: #ff9f2e; }
+  #wanted.hot { color: #ff3b30; animation: blink .6s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .45; } }
+  #objective { position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    max-width: 560px; text-align: center; font-size: 15px; background: rgba(0,0,0,.55);
+    padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(255,211,77,.5); }
+  #speed { position: absolute; bottom: 18px; right: 210px; font-size: 30px; font-weight: bold;
+    text-shadow: 0 2px 6px rgba(0,0,0,.9); }
+  #radio { position: absolute; bottom: 18px; left: 16px; font-size: 14px;
+    background: rgba(0,0,0,.55); padding: 6px 10px; border-radius: 6px; }
+  #minimap { position: absolute; top: 12px; right: 12px; width: 180px; height: 180px;
+    border: 2px solid rgba(255,255,255,.55); border-radius: 8px; background: #20242e; }
+  #crosshair { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px;
+    transform: translate(-50%, -50%); }
+  #crosshair::before, #crosshair::after { content: ''; position: absolute; background: #fff;
+    box-shadow: 0 0 3px #000; }
+  #crosshair::before { left: 8px; top: 0; width: 2px; height: 18px; }
+  #crosshair::after { left: 0; top: 8px; width: 18px; height: 2px; }
+  #banner { display: none; position: absolute; top: 22%; left: 50%; transform: translateX(-50%);
+    text-align: center; text-shadow: 0 3px 8px rgba(0,0,0,.9); }
+  #bannerTitle { font-size: 42px; font-weight: bold; color: #ffd34d; letter-spacing: 2px; }
+  #bannerText { font-size: 18px; margin-top: 6px; }
+  #hint { position: absolute; bottom: 52px; left: 16px; font-size: 12px; opacity: .75;
+    text-shadow: 0 1px 3px rgba(0,0,0,.9); }
+  /* Overlays */
+  .overlay { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    background: linear-gradient(160deg, rgba(20,16,48,.78), rgba(64,20,56,.78)); }
+  .overlay h1 { font-size: 64px; letter-spacing: 6px; color: #ffd34d;
+    text-shadow: 0 4px 24px rgba(255,120,60,.6); }
+  .overlay h2 { font-size: 20px; font-weight: normal; color: #ffb36b; margin: 8px 0 24px; }
+  .overlay p { max-width: 560px; font-size: 15px; line-height: 1.6; opacity: .92; }
+  .overlay button { pointer-events: auto; cursor: pointer; margin: 10px 6px 0; padding: 12px 28px;
+    font-size: 18px; font-weight: bold; color: #1a1030; background: #ffd34d; border: 0;
+    border-radius: 8px; }
+  .overlay button:hover { background: #ffe08a; }
+  .overlay button.ghost { background: transparent; color: #ffd34d; border: 2px solid #ffd34d; }
+  .controls { margin-top: 22px; font-size: 13px; line-height: 1.9; opacity: .85;
+    background: rgba(0,0,0,.35); padding: 12px 20px; border-radius: 10px; text-align: left; }
+  .controls b { color: #ffd34d; }
+  #saveInfo { margin-top: 10px; font-size: 14px; color: #7dff9a; }
+  #wasted { display: none; background: rgba(10,10,10,.82); }
+  #wasted h1 { color: #ff3b30; font-size: 84px; letter-spacing: 10px; }
+  #pause { display: none; background: rgba(0,0,0,.6); }
+  #pause h1 { font-size: 48px; }
 </style>
 </head>
 <body>
-<canvas id="game"></canvas>
-<div id="hud"><div id="hud-money"></div><div id="hud-mission"></div><div id="stars"></div><div id="hud-car"></div><div id="hud-radio"></div></div>
-<div id="obj"></div>
-<canvas id="minimap" width="180" height="135"></canvas>
-<div id="crosshair">+</div>
-<div id="ov-title"></div>
-<div id="ov-big"></div>
-<div id="ov-sub"></div>
-<div id="hud-state" data-screen="boot" data-money="0" data-mission="0" data-wanted="0" data-incar="0" data-carhp="100" data-health="100" data-speed="0" data-x="0" data-z="0" data-heading="0" data-dist="0"></div>
+<div id="game"></div>
+
+<div id="hud">
+  <div id="topLeft">
+    <div id="cash">$0</div>
+    <div id="healthWrap"><div id="healthBar"></div></div>
+  </div>
+  <div id="wanted">☆☆☆☆☆</div>
+  <div id="objective">Press M for mission 1: First Wheels</div>
+  <canvas id="minimap" width="200" height="200"></canvas>
+  <div id="speed"></div>
+  <div id="radio">♪ VELVET FM</div>
+  <div id="crosshair"></div>
+  <div id="banner"><div id="bannerTitle"></div><div id="bannerText"></div></div>
+  <div id="hint">WASD move / drive &nbsp;·&nbsp; E enter car &nbsp;·&nbsp; F exit &nbsp;·&nbsp; Space jump / handbrake &nbsp;·&nbsp; Click shoot &nbsp;·&nbsp; M mission &nbsp;·&nbsp; R radio &nbsp;·&nbsp; P pause &nbsp;·&nbsp; drag mouse to look</div>
+</div>
+
+<div id="startScreen" class="overlay">
+  <h1>VELVET CITY</h1>
+  <h2>Port Meridian &nbsp;·&nbsp; an open-world crime story</h2>
+  <p>You are Ray Delmar, fresh out of the Meridian docks with nothing but a
+  stolen jacket and a debt. Steal cars, outrun the Port Meridian police,
+  run five jobs for the crew — and end it all at the Central Bank vault.</p>
+  <div>
+    <button id="btnNew">NEW GAME</button>
+    <button id="btnContinue" class="ghost" style="display:none">CONTINUE</button>
+  </div>
+  <div id="saveInfo"></div>
+  <div class="controls">
+    <b>W A S D</b> move / drive &nbsp;·&nbsp; <b>Shift</b> run &nbsp;·&nbsp; <b>Space</b> jump / handbrake<br>
+    <b>E</b> steal &amp; enter car &nbsp;·&nbsp; <b>F</b> exit car &nbsp;·&nbsp; <b>Click</b> shoot<br>
+    <b>M</b> start mission &nbsp;·&nbsp; <b>R</b> radio station &nbsp;·&nbsp; <b>N</b> mute &nbsp;·&nbsp; <b>P</b> pause<br>
+    <b>Mouse drag</b> look around &nbsp;·&nbsp; <b>Wheel</b> zoom camera
+  </div>
+</div>
+
+<div id="wasted" class="overlay">
+  <h1>WASTED</h1>
+  <p>The Port Meridian police scraped you off the asphalt. $200 hospital bill.</p>
+</div>
+
+<div id="pause" class="overlay">
+  <h1>PAUSED</h1>
+  <p>Press P to keep playing.</p>
+</div>
+
 <script src="vendor/three.min.js"></script>
-<script type="module" src="src/main.js"></script>
+<script src="src/rng.js"></script>
+<script src="src/world.js"></script>
+<script src="src/main.js"></script>
 </body>
 </html>
