@@ -1,29 +1,62 @@
 # VELVET CITY
 
-[![make.fun](https://make.fun/badge/gta6-01.svg)](https://make.fun/bounty/gta6-01)
-[![rank](https://make.fun/badge/gta6-01/muhammad-rafly/gta6-open-world/rank.svg)](https://make.fun/bounty/gta6-01)
-[![reward](https://make.fun/badge/gta6-01/muhammad-rafly/gta6-open-world/reward.svg)](https://make.fun/bounty/gta6-01)
+[![make.fun · gta6-01](https://make.fun/badge/gta6-01.svg)](https://make.fun/bounty/gta6-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
+[![rank](https://make.fun/badge/gta6-01/muhammad-rafly/gta6-open-world/rank.svg)](https://make.fun/bounty/gta6-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
+[![reward](https://make.fun/badge/gta6-01/muhammad-rafly/gta6-open-world/reward.svg)](https://make.fun/bounty/gta6-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
 
-An original 3D open-world crime game for the [gta6-01 bounty](https://make.fun/bounty/gta6-01) on make.fun. Port Meridian after dark: steal a car, run five jobs, outrun the law.
+**VELVET CITY** is an original open-world crime game set in Port Meridian, a
+sun-soaked dusk city of ~176 buildings, built in full 3D with three.js. It runs
+offline from static files — no build step, no network. Entry for the make.fun
+**gta6-01** bounty ("Make GTA 6").
 
 ## Play
 
-Walk the streets or steal any car on them. The VCPD answers with pursuit cars, roadblocks and — at four stars and up — a helicopter with a searchlight. Police cars wear a black-and-white livery with a red-blue light bar and POLICE door text. Five missions tell the story: First Wheels, Hot Delivery, Getaway, Takedown, and the Central Bank vault. Earn money, save your progress, and don't get wasted or busted.
+Open `game/index.html` in desktop Chrome (or run `node serve.ts` and open
+http://localhost:8080). Keyboard + mouse.
 
-- **Move**: WASD · **Run**: Shift · **Enter/exit car**: F · **Shoot**: mouse click · **Reload**: R
-- **Punch**: J · **Radio**: C · **Headlights**: H · **Mute**: M · **Pause**: P / Esc
+| Key | Action |
+| --- | --- |
+| W A S D | Move / drive |
+| Shift | Run |
+| Space | Jump / handbrake |
+| E | Steal & enter car |
+| F | Exit car |
+| Click | Shoot (on foot) |
+| M | Start / retry mission |
+| R | Radio station (2 synthesized stations) |
+| N | Mute radio |
+| P | Pause |
+| Mouse drag / wheel | Look around / zoom camera |
 
-## Run it
+## The game
 
-```sh
-node serve.ts
-```
+- **Open world:** Port Meridian (3200×2400) — avenues, streets, sidewalks,
+  traffic, 72 pedestrians, a park, a beach and the Central Bank.
+- **Wanted system:** 1–5 stars. Police cars chase with an ease-in pursuit,
+  ram with limited damage, and a helicopter with a searchlight joins at 4–5
+  stars. Lay low and the heat fades.
+- **Missions:** five jobs for the crew — First Wheels ($200), Courier Run
+  ($400), Bank Job Prep ($600), Heat Wave ($800) and The Central Vault
+  ($1,500) — with a save that carries your progress (localStorage).
+- **HD look:** black-white police livery with a flashing red/blue light bar
+  and POLICE door decals, antialiased rendering, soft shadows that follow
+  the player, an environment map, and 2× road and facade textures.
+- **HUD + minimap:** cash, health, wanted stars, mission objective,
+  speedometer, live minimap with police and mission blips, and two
+  synthesized radio stations.
 
-Then open the local page. No build step, no network: the game is plain static files, with three.js vendored under `game/vendor/`. HD visuals: antialiasing, soft shadows, and 2x sharper textures.
+## Layout
 
-## Built with
+- `main.ts` — Node 22 entrypoint: copies `game/` + `screenshots/` to
+  `/output` and writes `dossier.json` (see `vendor/makefun-game.ts`).
+- `game/index.html` — the game shell and HUD.
+- `game/src/rng.js` — seeded random numbers (the city is deterministic).
+- `game/src/world.js` — Port Meridian: city, roads, buildings, bank, park.
+- `game/src/main.js` — gameplay: player, cars, police, helicopter,
+  missions, combat, HUD, minimap, radio.
+- `game/vendor/three.min.js` — vendored three.js.
+- `screenshots/` — 4 real renders of the game.
 
-- three.js r149 (vendored, `game/vendor/three.min.js`)
-- Node 22 standard library only for the entry program (`main.ts`)
+## License
 
-Built by an AI agent for the make.fun bounty — [try make.fun yourself](https://make.fun/r/mdf3w94k).
+MIT — see `LICENSE`.
