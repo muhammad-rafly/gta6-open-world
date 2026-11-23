@@ -1,62 +1,83 @@
 # VELVET CITY
 
 [![make.fun · gta6-01](https://make.fun/badge/gta6-01.svg)](https://make.fun/bounty/gta6-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
-[![rank](https://make.fun/badge/gta6-01/muhammad-rafly/gta6-open-world/rank.svg)](https://make.fun/bounty/gta6-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
-[![reward](https://make.fun/badge/gta6-01/muhammad-rafly/gta6-open-world/reward.svg)](https://make.fun/bounty/gta6-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
+[![make.fun rank](https://make.fun/badge/gta6-01/muhammad-rafly/gta6-open-world/rank.svg)](https://make.fun/bounty/gta6-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
+[![make.fun reward](https://make.fun/badge/gta6-01/muhammad-rafly/gta6-open-world/reward.svg)](https://make.fun/bounty/gta6-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-01)
 
 **VELVET CITY** is an original open-world crime game set in Port Meridian, a
-sun-soaked dusk city of ~176 buildings, built in full 3D with three.js. It runs
-offline from static files — no build step, no network. Entry for the make.fun
-**gta6-01** bounty ("Make GTA 6").
+fictional sun-soaked modern city. Built for the make.fun bounty
+[gta6-01 — "Make GTA 6"](https://make.fun/bounty/gta6-01). It runs entirely
+offline from static files in a desktop browser — no network, no Rockstar
+assets, everything here (city, characters, vehicles, names, story, art,
+music) is original.
 
-## Play
+You are Vic Marlowe, a driver with nothing but a fast pair of legs and a whole
+city to take. Steal cars, outrun the Port Meridian police, and run five jobs
+for the Velvet crew — from your first stolen wheels to the Kingpin.
 
-Open `game/index.html` in desktop Chrome (or run `node serve.ts` and open
-http://localhost:8080). Keyboard + mouse.
+## How to run
 
-| Key | Action |
+```sh
+node serve.ts
+```
+
+Then open http://localhost:8080 in a desktop browser. Any static file server
+works too (for example `npx serve game/`), as long as it serves `game/` from
+its root.
+
+## Controls
+
+| Input | Action |
 | --- | --- |
-| W A S D | Move / drive |
+| W A S D | Walk / drive (car: W accelerate, S brake/reverse, A/D steer) |
 | Shift | Run |
-| Space | Jump / handbrake |
-| E | Steal & enter car |
-| F | Exit car |
-| Click | Shoot (on foot) |
-| M | Start / retry mission |
-| R | Radio station (2 synthesized stations) |
-| N | Mute radio |
-| P | Pause |
-| Mouse drag / wheel | Look around / zoom camera |
+| Mouse drag / wheel | Orbit camera / zoom |
+| E | Enter or exit a car (steal parked and traffic cars) |
+| F | Shoot |
+| Space | Punch |
+| M / R | Switch radio station |
+| — | Progress saves automatically (Continue on the title screen) |
 
-## The game
+## Features
 
-- **Open world:** Port Meridian (3200×2400) — avenues, streets, sidewalks,
-  traffic, 72 pedestrians, a park, a beach and the Central Bank.
-- **Wanted system:** 1–5 stars. Police cars chase with an ease-in pursuit,
-  ram with limited damage, and a helicopter with a searchlight joins at 4–5
-  stars. Lay low and the heat fades.
-- **Missions:** five jobs for the crew — First Wheels ($200), Courier Run
-  ($400), Bank Job Prep ($600), Heat Wave ($800) and The Central Vault
-  ($1,500) — with a save that carries your progress (localStorage).
-- **HD look:** black-white police livery with a flashing red/blue light bar
-  and POLICE door decals, antialiased rendering, soft shadows that follow
-  the player, an environment map, and 2× road and facade textures.
-- **HUD + minimap:** cash, health, wanted stars, mission objective,
-  speedometer, live minimap with police and mission blips, and two
-  synthesized radio stations.
+- **Port Meridian** — a deterministic procedural city (3200×2400, ~176
+  buildings, avenues, sidewalks, street lamps) generated from a seed, so the
+  city is identical on every load.
+- **Walk and drive** — third-person on foot with a chase camera, arcade car
+  handling, enter/exit and car stealing.
+- **Traffic and pedestrians** — cars driving the road grid and ~72 sidewalk
+  pedestrians who flee when things get loud.
+- **Wanted system (1–5 stars)** — police cars chase with an ease-in pursuit,
+  ramming rules and cooldowns; a police helicopter with a searchlight joins
+  the hunt at 4–5 stars.
+- **5 missions** — First Wheels ($200), The Package ($400), Getaway ($600),
+  The Heist ($800), The Kingpin ($1,500), with markers, objectives and
+  payouts.
+- **Combat** — punch and shoot, health, and a WASTED screen (-$200).
+- **HUD and minimap** — cash, health, wanted stars, mission tracker, speed,
+  and a live minimap with player, police and mission blips.
+- **Radio** — two procedural WebAudio stations, VELVET FM and MERIDIAN BEATS.
+- **Save / continue** — progress persists in localStorage.
+- **HD visuals** — antialiasing, PCF soft shadows, PMREM environment
+  lighting, 2× window textures, and black-and-white police cars with a
+  full-width red/blue light bar and POLICE door decals.
 
-## Layout
+## Structure
 
-- `main.ts` — Node 22 entrypoint: copies `game/` + `screenshots/` to
-  `/output` and writes `dossier.json` (see `vendor/makefun-game.ts`).
-- `game/index.html` — the game shell and HUD.
-- `game/src/rng.js` — seeded random numbers (the city is deterministic).
-- `game/src/world.js` — Port Meridian: city, roads, buildings, bank, park.
-- `game/src/main.js` — gameplay: player, cars, police, helicopter,
-  missions, combat, HUD, minimap, radio.
-- `game/vendor/three.min.js` — vendored three.js.
-- `screenshots/` — 4 real renders of the game.
+```
+game/                  playable game (static files, offline)
+  index.html           page, HUD, minimap, start screen
+  vendor/three.min.js  vendored three.js r149
+  src/rng.js           seeded RNG (mulberry32)
+  src/world.js         procedural city generation + meshes
+  src/main.js          gameplay: player, cars, traffic, police, missions…
+main.ts                entry program: copies game/ + screenshots/ to /output
+                       and writes /output/dossier.json
+screenshots/           4 renders of the game (1280×720)
+vendor/makefun-game.ts make.fun's dossier library (kit file, unchanged)
+serve.ts               static file server for local play (kit file)
+```
 
 ## License
 
-MIT — see `LICENSE`.
+MIT — see [LICENSE](LICENSE).
