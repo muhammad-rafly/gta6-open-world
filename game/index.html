@@ -5,115 +5,127 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VELVET CITY — Port Meridian</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 100%; height: 100%; overflow: hidden; background: #101018;
-    font-family: 'Segoe UI', Arial, sans-serif; color: #f2f2f2; }
-  #game { position: fixed; inset: 0; }
-  #game canvas { display: block; }
-  .hidden { display: none !important; }
-  /* HUD */
-  #hud { display: none; position: fixed; inset: 0; pointer-events: none; z-index: 5; }
-  #topLeft { position: absolute; top: 14px; left: 16px; font-size: 20px;
-    text-shadow: 0 2px 4px rgba(0,0,0,.8); }
-  #cash { font-weight: bold; color: #7dff9a; }
-  #healthWrap { width: 190px; height: 12px; background: rgba(0,0,0,.55);
-    border: 1px solid rgba(255,255,255,.4); border-radius: 6px; margin-top: 6px; overflow: hidden; }
-  #healthBar { height: 100%; width: 100%; background: #2ecc71; }
-  #wanted { position: absolute; top: 12px; right: 210px; font-size: 30px; letter-spacing: 4px;
-    color: #ffd34d; text-shadow: 0 2px 6px rgba(0,0,0,.9); }
-  #wanted.warm { color: #ff9f2e; }
-  #wanted.hot { color: #ff3b30; animation: blink .6s steps(2) infinite; }
-  @keyframes blink { 50% { opacity: .45; } }
-  #objective { position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
-    max-width: 560px; text-align: center; font-size: 15px; background: rgba(0,0,0,.55);
-    padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(255,211,77,.5); }
-  #speed { position: absolute; bottom: 18px; right: 210px; font-size: 30px; font-weight: bold;
-    text-shadow: 0 2px 6px rgba(0,0,0,.9); }
-  #radio { position: absolute; bottom: 18px; left: 16px; font-size: 14px;
-    background: rgba(0,0,0,.55); padding: 6px 10px; border-radius: 6px; }
-  #minimap { position: absolute; top: 12px; right: 12px; width: 180px; height: 180px;
-    border: 2px solid rgba(255,255,255,.55); border-radius: 8px; background: #20242e; }
-  #crosshair { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px;
-    transform: translate(-50%, -50%); }
-  #crosshair::before, #crosshair::after { content: ''; position: absolute; background: #fff;
-    box-shadow: 0 0 3px #000; }
-  #crosshair::before { left: 8px; top: 0; width: 2px; height: 18px; }
-  #crosshair::after { left: 0; top: 8px; width: 18px; height: 2px; }
-  #banner { display: none; position: absolute; top: 22%; left: 50%; transform: translateX(-50%);
-    text-align: center; text-shadow: 0 3px 8px rgba(0,0,0,.9); }
-  #bannerTitle { font-size: 42px; font-weight: bold; color: #ffd34d; letter-spacing: 2px; }
-  #bannerText { font-size: 18px; margin-top: 6px; }
-  #hint { position: absolute; bottom: 52px; left: 16px; font-size: 12px; opacity: .75;
-    text-shadow: 0 1px 3px rgba(0,0,0,.9); }
-  /* Overlays */
-  .overlay { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; text-align: center;
-    background: linear-gradient(160deg, rgba(20,16,48,.78), rgba(64,20,56,.78)); }
-  .overlay h1 { font-size: 64px; letter-spacing: 6px; color: #ffd34d;
-    text-shadow: 0 4px 24px rgba(255,120,60,.6); }
-  .overlay h2 { font-size: 20px; font-weight: normal; color: #ffb36b; margin: 8px 0 24px; }
-  .overlay p { max-width: 560px; font-size: 15px; line-height: 1.6; opacity: .92; }
-  .overlay button { pointer-events: auto; cursor: pointer; margin: 10px 6px 0; padding: 12px 28px;
-    font-size: 18px; font-weight: bold; color: #1a1030; background: #ffd34d; border: 0;
-    border-radius: 8px; }
-  .overlay button:hover { background: #ffe08a; }
-  .overlay button.ghost { background: transparent; color: #ffd34d; border: 2px solid #ffd34d; }
-  .controls { margin-top: 22px; font-size: 13px; line-height: 1.9; opacity: .85;
-    background: rgba(0,0,0,.35); padding: 12px 20px; border-radius: 10px; text-align: left; }
-  .controls b { color: #ffd34d; }
-  #saveInfo { margin-top: 10px; font-size: 14px; color: #7dff9a; }
-  #wasted { display: none; background: rgba(10,10,10,.82); }
-  #wasted h1 { color: #ff3b30; font-size: 84px; letter-spacing: 10px; }
-  #pause { display: none; background: rgba(0,0,0,.6); }
-  #pause h1 { font-size: 48px; }
+  html, body { margin: 0; padding: 0; overflow: hidden; background: #101418; font-family: 'Segoe UI', Arial, sans-serif; }
+  #game-canvas { display: block; width: 100vw; height: 100vh; }
+  .hud { position: fixed; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.9); pointer-events: none; z-index: 5; }
+  /* GTA: money + wanted stars top-right. */
+  #hud-top-right { top: 14px; right: 16px; text-align: right; line-height: 1.25; }
+  #hud-cash { font-weight: bold; color: #7dff8a; font-size: 30px; }
+  #hud-wanted { font-size: 28px; letter-spacing: 4px; color: #ffcc00; }
+  #hud-wanted.flashing { animation: starblink 0.5s steps(2) infinite; }
+  @keyframes starblink { 50% { opacity: 0.25; } }
+  #hud-searching { font-size: 15px; font-weight: bold; color: #ff5544; letter-spacing: 2px; }
+  /* GTA: mission objective top-left. */
+  #hud-mission { top: 14px; left: 16px; text-align: left; font-size: 15px; line-height: 1.5; max-width: 380px; background: rgba(0,0,0,0.35); padding: 8px 12px; border-radius: 6px; }
+  /* GTA: circular minimap bottom-left. */
+  #minimap-wrap { position: fixed; left: 16px; bottom: 14px; z-index: 5; width: 180px; height: 180px; border-radius: 50%; overflow: hidden; border: 3px solid rgba(255,255,255,0.75); box-shadow: 0 2px 12px rgba(0,0,0,0.65); }
+  #minimap { display: block; width: 180px; height: 180px; }
+  #hud-speed { left: 16px; bottom: 200px; font-size: 24px; font-weight: bold; }
+  /* GTA: health + weapon/ammo bottom-right. */
+  #hud-bottom-right { right: 16px; bottom: 14px; text-align: right; font-size: 16px; line-height: 1.5; }
+  #hud-health-bar { width: 200px; height: 14px; background: rgba(0,0,0,0.55); border: 1px solid #fff; margin-left: auto; }
+  #hud-health-fill { height: 100%; width: 100%; background: #37d67a; }
+  #hud-weapon { font-size: 20px; font-weight: bold; }
+  #hud-car { font-size: 15px; }
+  #hud-radio { font-size: 14px; color: #cfe8ff; }
+  #btn-radio { position: fixed; right: 16px; bottom: 150px; z-index: 6; pointer-events: auto; cursor: pointer; background: rgba(0,0,0,0.55); color: #fff; border: 1px solid #fff; border-radius: 6px; padding: 6px 10px; font-size: 14px; }
+  #status { bottom: 14px; left: 50%; transform: translateX(-50%); font-size: 16px; background: rgba(0,0,0,0.45); padding: 6px 14px; border-radius: 20px; white-space: nowrap; }
+  /* Mission direction arrow + distance (GTA waypoint). */
+  #mission-arrow { position: fixed; left: 50%; top: 15%; transform: translateX(-50%); z-index: 5; text-align: center; color: #ffd23f; text-shadow: 0 2px 6px rgba(0,0,0,0.9); pointer-events: none; display: none; }
+  #mission-arrow-glyph { font-size: 40px; line-height: 1; display: inline-block; }
+  #mission-dist { font-size: 20px; font-weight: bold; color: #fff; }
+  /* Radio station banner (GTA). */
+  #radio-banner { position: fixed; left: 50%; top: 30%; transform: translateX(-50%); z-index: 7; font-size: 30px; font-weight: bold; letter-spacing: 2px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.9); background: rgba(0,0,0,0.45); padding: 8px 22px; border-radius: 8px; opacity: 0; transition: opacity 0.4s; pointer-events: none; }
+  /* Floating mission payout. */
+  #float-cash { position: fixed; right: 20px; top: 110px; z-index: 7; font-size: 28px; font-weight: bold; color: #7dff8a; text-shadow: 0 2px 6px rgba(0,0,0,0.9); opacity: 0; pointer-events: none; }
+  #float-cash.show { animation: floatup 1.6s ease-out forwards; }
+  @keyframes floatup { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-46px); } }
+  /* Blood flash when the player is hurt. */
+  #blood-flash { position: fixed; inset: 0; z-index: 8; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(200,0,0,0.55) 100%); transition: opacity 0.15s; }
+  #muzzle { position: fixed; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; background: radial-gradient(circle, #fff8cc 0%, #ffcc33 45%, transparent 70%); opacity: 0; pointer-events: none; z-index: 6; }
+  .overlay { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; }
+  #start-screen { background: linear-gradient(160deg, rgba(20,16,40,0.55), rgba(80,20,60,0.5)); }
+  #start-screen h1 { font-size: 84px; margin: 0; letter-spacing: 8px; color: #ffd23f; text-shadow: 0 4px 24px rgba(255,80,120,0.6); }
+  #start-screen h2 { font-size: 20px; font-weight: normal; margin: 6px 0 18px; color: #ffd9e8; }
+  #start-screen p { max-width: 640px; font-size: 15px; line-height: 1.6; margin: 6px 0; }
+  #start-screen .controls { font-size: 14px; color: #cfe8ff; background: rgba(0,0,0,0.35); padding: 10px 18px; border-radius: 8px; margin: 12px 0 20px; line-height: 1.8; }
+  #press-enter { font-size: 22px; font-weight: bold; letter-spacing: 2px; color: #fff; animation: enterpulse 1.2s ease-in-out infinite; margin: 10px 0 4px; }
+  @keyframes enterpulse { 50% { opacity: 0.35; } }
+  .big-btn { pointer-events: auto; cursor: pointer; font-size: 20px; font-weight: bold; color: #1a1a1a; background: #ffd23f; border: none; border-radius: 8px; padding: 12px 34px; margin: 4px 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+  .big-btn:hover { background: #ffe27a; }
+  #btn-continue { background: #7dff8a; }
+  /* GTA WASTED: big grey letters, screen fading to black. */
+  #wasted { display: none; background: radial-gradient(ellipse at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.92) 100%); animation: fadein 1.2s ease-out; }
+  #wasted h1 { font-size: 96px; margin: 0; color: #c8c8c8; letter-spacing: 14px; font-weight: 900; text-shadow: 0 4px 30px rgba(0,0,0,0.9); }
+  #wasted p { font-size: 18px; color: #ddd; }
+  #busted { display: none; background: radial-gradient(ellipse at center, rgba(0,0,40,0.3) 0%, rgba(0,0,0,0.92) 100%); animation: fadein 1.2s ease-out; }
+  #busted h1 { font-size: 96px; margin: 0; color: #c8c8c8; letter-spacing: 14px; font-weight: 900; text-shadow: 0 4px 30px rgba(0,0,0,0.9); }
+  #busted p { font-size: 18px; color: #ddd; }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+  #load-error { display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: #a00; color: #fff; padding: 10px; font-size: 14px; }
 </style>
 </head>
 <body>
-<div id="game"></div>
+<canvas id="game-canvas"></canvas>
 
-<div id="hud">
-  <div id="topLeft">
-    <div id="cash">$0</div>
-    <div id="healthWrap"><div id="healthBar"></div></div>
-  </div>
-  <div id="wanted">☆☆☆☆☆</div>
-  <div id="objective">Press M for mission 1: First Wheels</div>
-  <canvas id="minimap" width="200" height="200"></canvas>
-  <div id="speed"></div>
-  <div id="radio">♪ VELVET FM</div>
-  <div id="crosshair"></div>
-  <div id="banner"><div id="bannerTitle"></div><div id="bannerText"></div></div>
-  <div id="hint">WASD move / drive &nbsp;·&nbsp; E enter car &nbsp;·&nbsp; F exit &nbsp;·&nbsp; Space jump / handbrake &nbsp;·&nbsp; Click shoot &nbsp;·&nbsp; M mission &nbsp;·&nbsp; R radio &nbsp;·&nbsp; P pause &nbsp;·&nbsp; drag mouse to look</div>
+<div id="hud-top-right" class="hud">
+  <div id="hud-cash">$0</div>
+  <div id="hud-wanted">☆☆☆☆☆</div>
+  <div id="hud-searching"></div>
 </div>
 
-<div id="startScreen" class="overlay">
+<div id="hud-mission" class="hud"></div>
+
+<div id="hud-speed" class="hud">0 km/h</div>
+
+<div id="hud-bottom-right" class="hud">
+  <div id="hud-health-bar"><div id="hud-health-fill"></div></div>
+  <div><span id="hud-health-text">100</span> HP</div>
+  <div id="hud-weapon">Pistol ∞</div>
+  <div id="hud-car"></div>
+  <div id="hud-radio">♪ Radio off (M)</div>
+</div>
+
+<div id="status" class="hud">Welcome to Port Meridian.</div>
+<div id="minimap-wrap"><canvas id="minimap" width="180" height="180"></canvas></div>
+<button id="btn-radio" type="button">♪ Radio</button>
+<div id="muzzle"></div>
+<div id="blood-flash"></div>
+
+<div id="mission-arrow"><span id="mission-arrow-glyph">▲</span><div id="mission-dist">0m</div></div>
+<div id="radio-banner"></div>
+<div id="float-cash"></div>
+
+<div id="start-screen" class="overlay">
   <h1>VELVET CITY</h1>
-  <h2>Port Meridian &nbsp;·&nbsp; an open-world crime story</h2>
-  <p>You are Ray Delmar, fresh out of the Meridian docks with nothing but a
-  stolen jacket and a debt. Steal cars, outrun the Port Meridian police,
-  run five jobs for the crew — and end it all at the Central Bank vault.</p>
-  <div>
-    <button id="btnNew">NEW GAME</button>
-    <button id="btnContinue" class="ghost" style="display:none">CONTINUE</button>
-  </div>
-  <div id="saveInfo"></div>
+  <h2>Port Meridian — an original open-world crime game</h2>
+  <p>You are Vic Marlowe, a driver with nothing but a fast pair of legs and a
+  whole city to take. Steal cars, outrun the Port Meridian police, and run
+  five jobs for the Velvet crew — from your first stolen wheels to the Kingpin.</p>
   <div class="controls">
-    <b>W A S D</b> move / drive &nbsp;·&nbsp; <b>Shift</b> run &nbsp;·&nbsp; <b>Space</b> jump / handbrake<br>
-    <b>E</b> steal &amp; enter car &nbsp;·&nbsp; <b>F</b> exit car &nbsp;·&nbsp; <b>Click</b> shoot<br>
-    <b>M</b> start mission &nbsp;·&nbsp; <b>R</b> radio station &nbsp;·&nbsp; <b>N</b> mute &nbsp;·&nbsp; <b>P</b> pause<br>
-    <b>Mouse drag</b> look around &nbsp;·&nbsp; <b>Wheel</b> zoom camera
+    <b>W A S D</b> walk / drive &nbsp;·&nbsp; <b>Shift</b> run &nbsp;·&nbsp; <b>Mouse drag</b> camera &nbsp;·&nbsp; <b>Wheel</b> zoom<br>
+    <b>E</b> enter / exit car (steal parked and traffic cars) &nbsp;·&nbsp; <b>F</b> shoot &nbsp;·&nbsp; <b>Space</b> punch<br>
+    <b>M / R</b> switch radio &nbsp;·&nbsp; progress saves automatically
   </div>
+  <div id="press-enter">— PRESS ENTER TO START —</div>
+  <div>
+    <button id="btn-start" class="big-btn" type="button">▶ NEW GAME</button>
+    <button id="btn-continue" class="big-btn" type="button" style="display:none">CONTINUE</button>
+  </div>
+  <p style="font-size:13px;color:#bbb">Runs offline from static files. No Rockstar assets — everything here is original.</p>
 </div>
 
 <div id="wasted" class="overlay">
   <h1>WASTED</h1>
-  <p>The Port Meridian police scraped you off the asphalt. $200 hospital bill.</p>
+  <p>The clinic patched you up. -$200.</p>
 </div>
 
-<div id="pause" class="overlay">
-  <h1>PAUSED</h1>
-  <p>Press P to keep playing.</p>
+<div id="busted" class="overlay">
+  <h1>BUSTED</h1>
+  <p>The Port Meridian PD caught you. -$100.</p>
 </div>
+
+<div id="load-error"></div>
 
 <script src="vendor/three.min.js"></script>
 <script src="src/rng.js"></script>
