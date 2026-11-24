@@ -5,6 +5,7 @@
 // stands in for /output. Node 22, standard library only.
 // Fix pass (Round 4): dossier schema makefun/dossier/v1 via kit vendor/makefun-game.ts.
 // Fix-2 (Round 4): no logic change — screenshots regenerated after benches/flags moved off roads.
+// Fix-3 (Round 4, recording #14): no logic change — README badge fix only.
 import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
