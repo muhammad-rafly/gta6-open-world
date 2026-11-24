@@ -5,6 +5,7 @@
 // seeded draws, so any change here changes the hash; behaviour untouched.
 // Fix-2 (Round 4): no change here — benches/flags are layout data, not RNG
 // draws, so the city hash is unaffected by moving them off the roads.
+// Fix-3 (Round 4, recording #14): no change — README badge fix only; hash unchanged.
 (function (global) {
   'use strict';
 

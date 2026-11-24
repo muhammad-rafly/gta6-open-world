@@ -1,5 +1,6 @@
 // main.js — VELVET CITY: an original open-world crime game in Port Meridian.
 // Three.js (vendored), static files only, keyboard + mouse, no network.
+// Fix-3 (Round 4, recording #14): README badges corrected to rank/reward; no game change.
 // Written fresh for the gta6-01 bounty. Systems: on-foot + driving, traffic
 // with working red lights, pedestrians with visible daily activities,
 // wanted level + police (cars, foot cops, helicopter), 5 missions, combat,

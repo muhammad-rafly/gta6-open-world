@@ -1,4 +1,5 @@
 // world.js — Port Meridian: the city of VELVET CITY.
+// Fix-3 (Round 4, recording #14): README badges corrected; no layout change, city hash unchanged.
 // Builds the whole city from one seed (1337) with a seeded RNG, so the same
 // seed always builds the same city. Exports buildCity(THREE, seed) which
 // returns { data, group, hash }: the gameplay data, the THREE.Group holding
